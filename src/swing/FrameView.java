@@ -1,12 +1,16 @@
 package swing;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import function.Greedy;
 
 class FrameCls extends JFrame {
+	
 	ImageIcon img1 = null;
 	ImageIcon img2 = null;
 	ImageIcon img3 = null;
@@ -38,7 +42,7 @@ class FrameCls extends JFrame {
 	
 	//잔고 및 계산 시작 버튼
 	JLabel creditLabel = new JLabel("현재 금액");
-	JTextField tf = new JTextField("현재 금액을 입력해주세요", 20);
+	JTextField tf = new JTextField("0", 20);
 	JButton startBtn = new JButton("시작");
 	
 	//총합 및 구매 버튼
@@ -47,7 +51,7 @@ class FrameCls extends JFrame {
 	JButton buyBtn = new JButton("구매");
 	
 	public FrameCls() {
-		setSize(450, 300);
+		setSize(640, 400);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setTitle("음식 주문창");
 		setLayout(new GridLayout(0, 1));
@@ -81,6 +85,9 @@ class FrameCls extends JFrame {
 		bottomPanel.add(totalCost);
 		bottomPanel.add(buyBtn);
 		
+		startBtn.addActionListener(new AcListener());
+		buyBtn.addActionListener(new AcListener());
+		
 		panel.add(imgPanel);
 		panel.add(menuPanel);
 		panel.add(creditPanel);
@@ -89,13 +96,98 @@ class FrameCls extends JFrame {
 		setVisible(true);
 	}
 	
+	//버튼 이벤트 (Inner Class)
+	private class AcListener implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+			int paid = 0, hamburger = 0, rice = 0, noodle = 0;
+			hamburger = Integer.parseInt(menu1_spin.getValue().toString());
+			rice = Integer.parseInt(menu2_spin.getValue().toString());
+			noodle = Integer.parseInt(menu3_spin.getValue().toString());
+			paid = Integer.parseInt(tf.getText());
+			/*
+			 시작버튼 누르면 주문할 메뉴들의 총 합계를 totalCost 텍스트필드에 띄움
+			 구매버튼을 누르면 새 프레임을 띄워 구매 후 거스름돈과 거슬러 줄 총 화폐의 개수를 띄움
+			 현재 잔고가 더 적으면 금액이 부족하다는 텍스트 출력
+			 (화폐는 10000, 5000, 1000, 500, 100, 50, 10원이 있다고 가정)
+			 */
+			if(e.getSource() == startBtn) {
+				int itotalCost = 0;
+				Greedy greedy = new Greedy(paid, hamburger, rice, noodle);				
+				itotalCost = greedy.TotalCost();
+				totalCost.setText(Integer.toString(itotalCost));
+				
+			} else if(e.getSource() == buyBtn) {
+				int itotalCost = 0;
+				Greedy greedy = new Greedy(paid, hamburger, rice, noodle);
+				
+				itotalCost = greedy.TotalCost();
+				
+				if(itotalCost <= 0) {
+					BuyingFrame frameB = new BuyingFrame();
+					frameB.textl.setText("주문하신 메뉴가 없습니다.");
+				} else if (itotalCost > paid) {
+					BuyingFrame frameB = new BuyingFrame();
+					frameB.textl.setText("현재 돈이 부족합니다.");
+				} else {
+					int totalChanges = 0, totalMoney = 0;
+					String changeStr;
+					
+					totalMoney = greedy.GreedyChange();
+					totalChanges = greedy.getTotalChange();
+					changeStr = Integer.toString(totalChanges) + " (화폐 수: " + Integer.toString(totalMoney) + ")";
+					
+					BuyingFrame frameB = new BuyingFrame();
+					frameB.changetext.setText(changeStr);
+				}
+			}
+		}
+	}
+	
+}
+
+class BuyingFrame extends JFrame {
+	JPanel mainpanel = new JPanel();
+	JPanel labelPanel = new JPanel();
+	JPanel btnPanel = new JPanel();
+	
+	JLabel textl = new JLabel("주문 완료! 총 거스름돈:  ");
+	JTextField changetext = new JTextField(" ");
+	JButton checkBtn = new JButton("확인");
+	
+	public BuyingFrame () {
+		setSize(700, 120);
+		setTitle("주문 확인창");
+		mainpanel.setLayout(new GridLayout(0, 1));
+		
+		changetext.setEditable(false);
+		labelPanel.add(textl);
+		labelPanel.add(changetext);
+		
+		btnPanel.add(checkBtn);
+		checkBtn.addActionListener(new BtListener());
+		
+		mainpanel.add(labelPanel);
+		mainpanel.add(btnPanel);
+		add(mainpanel);
+		setVisible(true);
+	}
+	
+	private class BtListener implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+			if(e.getSource() == checkBtn) {
+				dispose();
+			}
+		}
+	}
+	
 }
 
 public class FrameView {
 
 	public static void main(String[] args) {
+		
 		FrameCls frameCls = new FrameCls();
-
+		
 	}
 
 }
