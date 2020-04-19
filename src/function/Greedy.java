@@ -66,8 +66,14 @@ public class Greedy {
             change = change - 10;
             n10++;
         }
-        totalMoney = n10000 + n5000 + n1000 + n500 + n100 + n50 + n10;
+        totalMoney = n10000 + n5000 + n1000 + n500 + n100 + n50 + n10 + change;
+
+        // 콘솔창에 출력
+        System.out.println( "10000원 : " +n10000+ "\n" +"5000원 : " +n5000+ "\n" +
+                "1000원 : " +n1000+ "\n" +"500원 : " +n500+ "\n" +
+                "100원 : " + n100 + "\n" + "50원 : " + n50 + "\n" +
+                "10원 : " +n10 + "\n" + "1원 : " + change + "\n" + "총 " + totalMoney + "개");
+
         return totalMoney;
 	}
-
 }
